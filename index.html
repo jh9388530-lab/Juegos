@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1118">
+<title>Galería de Juegos</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1118;--card:#171c27;--fg:#eef1f7;--sub:#8b95a8;--ac:#ffd45c}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 20% -10%,#1b2540,transparent),var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header{display:flex;gap:12px;align-items:center;padding:14px 18px;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+.logo{font:800 26px system-ui;letter-spacing:-.5px}.logo b{color:var(--ac)}
+#q{flex:1;min-width:150px;max-width:420px;padding:10px 16px;border-radius:999px;border:2px solid #263047;background:#131826;color:var(--fg);font-size:15px}
+#q:focus{outline:0;border-color:var(--ac)}
+.chips{display:flex;gap:8px;padding:0 18px 8px;overflow-x:auto;max-width:1200px;margin:0 auto}
+.chip{flex:none;border:2px solid #263047;background:transparent;color:var(--sub);border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#1b1500}
+main{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-rows:150px;grid-auto-flow:dense;gap:14px;padding:10px 18px 30px;max-width:1200px;margin:0 auto}
+.card{position:relative;border:0;border-radius:20px;overflow:hidden;background:var(--card);cursor:pointer;padding:0;color:inherit;text-align:left;transition:transform .18s,box-shadow .18s}
+.card:hover,.card:focus-visible{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 30px #0009;outline:0}
+.card svg{position:absolute;inset:0;width:100%;height:100%}
+.info{position:absolute;left:0;right:0;bottom:0;padding:28px 12px 10px;background:linear-gradient(transparent,#000d)}
+.info b{display:block;font-size:15px}.info small{color:#c5cce0;font-size:12px}
+.big{grid-column:span 2;grid-row:span 2}
+.big .info b{font-size:20px}
+.badge{position:absolute;top:10px;left:10px;background:#ff4d6d;color:#fff;font:800 11px system-ui;padding:3px 9px;border-radius:999px}
+.play{position:absolute;right:10px;top:10px;background:var(--ac);color:#1b1500;font:800 13px system-ui;padding:6px 12px;border-radius:999px;opacity:0;transform:translateY(-4px);transition:.18s}
+.card:hover .play,.card:focus-visible .play{opacity:1;transform:none}
+.pronto{filter:grayscale(.85) brightness(.65);cursor:default}
+.pronto:hover{transform:none;box-shadow:none}.pronto .play{display:none}
+.vacio{grid-column:1/-1;text-align:center;color:var(--sub);padding:40px}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:0 0 24px}
+#player{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column}
+#player[hidden]{display:none}
+.pbar{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:6px 10px;padding-top:max(6px,env(safe-area-inset-top));background:#0e1118}
+.pbar button{background:#1c2332;color:var(--fg);border:0;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer}
+.pbar button:hover{background:#27324a}
+#ptitle{font-size:15px}
+#fr{flex:1;border:0;width:100%;background:#000}
+.card img.cov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.edit{position:absolute;right:48px;bottom:8px;z-index:3;background:var(--ac);color:#1b1500;border-radius:999px;padding:6px 11px;font:800 12px system-ui;display:none}
+body.ed .edit{display:block}
+#edbar{position:sticky;top:0;z-index:20;background:var(--ac);color:#1b1500;font:800 13px system-ui;display:flex;gap:10px;justify-content:center;align-items:center;padding:6px 10px;flex-wrap:wrap}
+#edbar[hidden]{display:none}#edbar button{background:#1b1500;color:var(--ac);border:0;border-radius:8px;padding:4px 10px;font:800 12px system-ui;cursor:pointer}
+#edm{position:fixed;inset:0;z-index:80;background:#000c;display:flex;align-items:center;justify-content:center;padding:14px}
+#edm[hidden]{display:none}
+.edb{background:#171c27;border-radius:18px;padding:16px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:10px;align-items:center;max-height:100%;overflow:auto;text-align:center}
+.edb h3{margin:0}.edb small{color:var(--sub)}
+.edb canvas{width:min(320px,70vw);height:min(320px,70vw);background:#0a0d14;border-radius:14px;touch-action:none;cursor:grab}
+.edb button,.edb .f{background:#263047;color:var(--fg);border:0;border-radius:10px;padding:9px 14px;font:700 13px system-ui;cursor:pointer}
+.edb .p{background:var(--ac);color:#1b1500}.edr{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.edb input[type=range]{width:min(300px,70vw)}
+.helpb{position:absolute;right:8px;bottom:8px;z-index:3;width:30px;height:30px;border-radius:50%;background:#000a;color:#fff;font:800 16px/26px system-ui;text-align:center;border:2px solid #fff6;transition:.15s}
+.helpb:hover{background:var(--ac);color:#1b1500;border-color:var(--ac)}
+#hlp{position:fixed;inset:0;z-index:90;background:#000c;display:flex;align-items:center;justify-content:center;padding:14px}
+#hlp[hidden]{display:none}
+.hbox{background:#171c27;border-radius:18px;padding:18px 20px;width:min(100%,460px);max-height:100%;overflow:auto;box-shadow:0 14px 40px #000a}
+.hbox h3{margin:0 0 10px;font-size:20px}.hbox h4{margin:14px 0 6px;color:var(--ac);font-size:13px;letter-spacing:.5px;text-transform:uppercase}
+.hrow{display:flex;gap:10px;align-items:baseline;padding:4px 0;font-size:14px}
+.hrow kbd{flex:none;min-width:64px;text-align:center;background:#263047;border-radius:8px;padding:3px 8px;font:700 12px system-ui;color:#fff}
+.hbox button{margin-top:14px;width:100%;border:0;border-radius:12px;padding:11px;background:var(--ac);color:#1b1500;font:800 15px system-ui;cursor:pointer}
+
+#admb{background:var(--ac);color:#1b1500;border:0;border-radius:999px;padding:9px 14px;font:800 13px system-ui;cursor:pointer}
+#adm{position:fixed;inset:0;z-index:85;background:#000c;display:flex;align-items:center;justify-content:center;padding:12px}
+#adm[hidden],#toast[hidden]{display:none}
+.adb{background:#171c27;border-radius:18px;padding:16px;width:min(100%,760px);max-height:100%;overflow:auto}
+.adb h3{margin:0 0 4px}.adb small{color:var(--sub);display:block;margin:6px 0}.adb summary{cursor:pointer;font-weight:700;margin:8px 0}
+.ar{border:2px solid #263047;border-radius:14px;padding:10px;margin:10px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ai{background:#0e1118;color:var(--fg);border:2px solid #263047;border-radius:10px;padding:8px 10px;font:14px system-ui;min-width:0;flex:1}
+.ar .at{grid-column:1/-1}
+.ab{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;margin:6px 0}
+.adb button,.adb .f{background:#263047;color:var(--fg);border:0;border-radius:10px;padding:9px 12px;font:700 13px system-ui;cursor:pointer}
+.adb .p{background:var(--ac);color:#1b1500}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:12px;font:700 14px system-ui;z-index:99;max-width:90vw;text-align:center}
+</style>
+</head>
+<body>
+<div id="edbar" hidden>✏️ Modo editor activo<button id="edkey">Cambiar clave</button><button id="edoff">Salir</button></div>
+<header><div class="logo">🎮 Galería<b>Juegos</b></div><input id="q" type="search" placeholder="Buscar juegos..." autocomplete="off"><button id="admb" type="button" hidden>⚙️ Admin</button></header>
+<div class="chips" id="chips"></div>
+<main id="grid"></main>
+<footer>Más juegos muy pronto</footer>
+
+<div id="edm" hidden><div class="edb"><h3 id="edt"></h3><canvas id="edc" width="400" height="400"></canvas><small>Cuadrada 400×400 (cualquier imagen sirve, se recorta aquí). Arrastra para mover.</small>
+<input type="range" id="edz" min="1" max="4" step=".01" value="1"><div class="edr"><label class="f">📁 Elegir imagen<input type="file" id="edf" accept="image/*" hidden></label><button id="edd">⬇ Descargar JPG</button></div>
+<div class="edr"><button class="p" id="eds">Guardar</button><button id="edx">Restaurar original</button><button id="edk">Cerrar</button></div></div></div>
+<div id="hlp" hidden><div class="hbox"><h3 id="hlpt"></h3><div id="hlpb"></div><button id="hlpx">Entendido</button></div></div>
+
+<div id="adm" hidden><div class="adb"><h3>⚙️ Panel de administrador</h3><small>Al publicar se guarda en GitHub y en 1 o 2 minutos se actualiza solo en todos los dispositivos que tengan abierta la galería.</small>
+<details id="adgh"><summary>🔑 Conexión con GitHub</summary><div class="ab"><input class="ai" id="agu" placeholder="Usuario u organización"><input class="ai" id="agr" placeholder="Repositorio"><input class="ai" id="agb" placeholder="Rama (main)"></div><div class="ab"><input class="ai" id="agt" type="password" placeholder="Token de acceso (solo se guarda en este dispositivo)"><button id="ags" type="button">Guardar conexión</button></div></details>
+<div id="adl"></div><div class="ab"><input class="ai" id="adt" placeholder="Título del juego nuevo"></div><div class="ab"><label class="f">📄 Archivo del juego (.html)<input type="file" id="adn" accept=".html,.htm,text/html" hidden></label><label class="f">🖼 Portada (imagen)<input type="file" id="adcv" accept="image/*" hidden></label><button class="p" id="adg" type="button">➕ Agregar juego</button></div><small id="adi">Elige el juego y su portada; sin portada saldrá con un ícono 🎮.</small>
+<div class="ab"><button class="p" id="adp" type="button">💾 Publicar cambios</button><button id="adc" type="button">Cerrar</button></div></div></div>
+<div id="toast" hidden></div>
+<div id="player" hidden>
+  <div class="pbar"><button id="back">← Galería</button><b id="ptitle"></b><span><button id="phelp" title="Controles">?</button> <button id="reload" title="Reiniciar juego">⟳</button> <button id="full" title="Pantalla completa">⛶</button></span></div>
+  <iframe id="fr" allow="fullscreen; autoplay"></iframe>
+</div>
+
+<script type="application/json" id="data">{"v": 1, "meta": [{"id": "gusano", "t": "Gusano Hambriento", "cat": "Acción", "tag": "Come, crece y sobrevive", "big": 1, "nuevo": 1}, {"id": "billar", "t": "Billar 8 Ball", "cat": "Deportes", "tag": "2 jugadores por turnos", "big": 1}, {"id": "zona", "t": "Zona Cero", "cat": "Acción", "tag": "Modo oleadas", "big": 1, "nuevo": 1}, {"id": "comando", "t": "Comando Selva", "cat": "Acción", "tag": "Misiones · móvil y PC", "big": 1, "nuevo": 1}, {"id": "arco", "t": "Tiro con arco", "cat": "Deportes", "tag": "Puntería", "big": 1, "nuevo": 1}, {"id": "duelo", "t": "Duelo de Puños", "cat": "Acción", "tag": "Pelea 1 o 2 jugadores", "big": 1, "nuevo": 1}, {"id": "triki", "t": "Triki · X y O", "cat": "Clásicos", "tag": "1 o 2 jugadores", "big": 1, "nuevo": 1}]}</script>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i);};
+var D=JSON.parse($("data").textContent),STG={g:{},cov:{},del:[]},JUEGOS=[];
+function meta1(id){return D.meta.filter(function(x){return x.id===id;})[0];}
+var COL=["#f2c10e","#1d57d4","#d92b2b","#6b2fa3","#f27019","#1c8a4a","#7b2020"];
+
+var SVG={
+  gusano:function(){
+    var s='<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="ga" cx=".5" cy=".5" r=".8"><stop offset="0" stop-color="#1d3f5e"/><stop offset="1" stop-color="#0a141d"/></radialGradient></defs><rect width="300" height="200" fill="url(#ga)"/>';
+    for(var i=0;i<24;i++)s+='<circle cx="'+((i*97)%290+5)+'" cy="'+((i*61)%190+5)+'" r="4" fill="hsl('+(i*47)+',90%,60%)"/>';
+    for(i=0;i<16;i++){var t=i/15,x=40+t*190,y=150-Math.sin(t*3)*60-t*40;
+      s+='<circle cx="'+x+'" cy="'+y+'" r="'+(10+t*7)+'" fill="hsl('+(90+t*40)+',70%,'+(50+t*8)+'%)" stroke="#0007" stroke-width="3"/>';}
+    return s+'<circle cx="238" cy="94" r="5.5" fill="#fff"/><circle cx="238" cy="110" r="5.5" fill="#fff"/><circle cx="240" cy="94" r="2.6" fill="#111"/><circle cx="240" cy="110" r="2.6" fill="#111"/></svg>';
+  },
+  billar:function(){
+    var s='<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="gb" cx=".5" cy=".5" r=".8"><stop offset="0" stop-color="#23a35f"/><stop offset="1" stop-color="#0f6a38"/></radialGradient></defs><rect width="300" height="200" fill="#5a3217"/><rect x="14" y="14" width="272" height="172" rx="10" fill="url(#gb)"/>';
+    [[14,14],[150,14],[286,14],[14,186],[150,186],[286,186]].forEach(function(p){s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="11" fill="#050505"/>';});
+    var k=0;for(var r=0;r<4;r++)for(var j=0;j<=r;j++){var c=COL[k++%7];
+      s+='<circle cx="'+(190+r*17)+'" cy="'+(100+(j-r/2)*19)+'" r="9" fill="'+(k%2?c:'#f5f2e8')+'" stroke="'+c+'" stroke-width="'+(k%2?0:4)+'"/>';}
+    return s+'<circle cx="80" cy="100" r="9" fill="#fff"/><line x1="10" y1="76" x2="66" y2="94" stroke="#e8c98a" stroke-width="5" stroke-linecap="round"/></svg>';
+  },
+  zona:function(){
+    return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><image href="portadas/zona.jpg" x="0" y="0" width="300" height="200" preserveAspectRatio="xMidYMid slice"/></svg>';
+  },
+  arco:function(){
+    return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><image href="portadas/arco.jpg" x="0" y="0" width="300" height="200" preserveAspectRatio="xMidYMid slice"/></svg>';
+  },
+  duelo:function(){
+    return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1850"/><stop offset=".7" stop-color="#d9644a"/><stop offset="1" stop-color="#ffb36b"/></linearGradient></defs><rect width="300" height="200" fill="url(#gd)"/><circle cx="225" cy="62" r="24" fill="#ffe9a8"/><rect y="160" width="300" height="40" fill="#3a2850"/>'+
+      '<g stroke-linecap="round" stroke="#150d1f" stroke-width="2"><line x1="95" y1="115" x2="85" y2="158" stroke="#1c2c5c" stroke-width="10"/><line x1="95" y1="115" x2="112" y2="158" stroke="#1c2c5c" stroke-width="10"/><line x1="95" y1="115" x2="97" y2="82" stroke="#2f6fe0" stroke-width="16"/><line x1="97" y1="88" x2="138" y2="84" stroke="#f1c9a0" stroke-width="8"/><circle cx="142" cy="84" r="8" fill="#2f6fe0"/><circle cx="99" cy="68" r="11" fill="#f1c9a0"/>'+
+      '<line x1="205" y1="115" x2="215" y2="158" stroke="#4a1616" stroke-width="10"/><line x1="205" y1="115" x2="188" y2="158" stroke="#4a1616" stroke-width="10"/><line x1="205" y1="115" x2="203" y2="82" stroke="#d93a3a" stroke-width="16"/><line x1="203" y1="88" x2="166" y2="90" stroke="#f1c9a0" stroke-width="8"/><circle cx="162" cy="90" r="8" fill="#d93a3a"/><circle cx="201" cy="68" r="11" fill="#f1c9a0"/></g>'+
+      '<text x="150" y="48" font-size="30" font-weight="900" fill="#ffd45c" stroke="#8a2d0b" stroke-width="3" paint-order="stroke" text-anchor="middle" font-family="Impact,sans-serif">VS</text></svg>';
+  },
+  emoji:function(e,c1,c2){
+    return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g'+e.codePointAt(0)+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs><rect width="300" height="200" fill="url(#g'+e.codePointAt(0)+')"/><text x="150" y="115" font-size="80" text-anchor="middle">'+e+'</text></svg>';
+  }
+};
+
+SVG.triki=function(){
+  return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="gtk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1f4a"/><stop offset="1" stop-color="#0f1b2e"/></linearGradient></defs><rect width="300" height="200" fill="url(#gtk)"/>'
+   +'<g stroke="#ffffff55" stroke-width="5" stroke-linecap="round"><line x1="127" y1="30" x2="127" y2="170"/><line x1="173" y1="30" x2="173" y2="170"/><line x1="80" y1="77" x2="220" y2="77"/><line x1="80" y1="123" x2="220" y2="123"/></g>'
+   +'<g stroke="#ff6b8b" stroke-width="8" stroke-linecap="round"><path d="M91 41l24 24M115 41L91 65"/><path d="M138 88l24 24M162 88l-24 24"/><path d="M185 135l24 24M209 135l-24 24"/></g>'
+   +'<g stroke="#5ad1ff" stroke-width="8" fill="none"><circle cx="150" cy="53" r="13"/><circle cx="103" cy="100" r="13"/></g>'
+   +'<line x1="95" y1="45" x2="205" y2="155" stroke="#ffd45c" stroke-width="6" stroke-linecap="round" opacity=".9"/></svg>';
+};
+SVG.comando=function(){return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="gcs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c6b45"/><stop offset=".6" stop-color="#e3a95a"/><stop offset="1" stop-color="#2a1d10"/></linearGradient></defs><rect width="300" height="200" fill="url(#gcs)"/><circle cx="232" cy="62" r="24" fill="#ffe9a8"/><path d="M0 200V128l40-30 30 24 36-36 40 38 30-26 44 34 40-30 40 24v74z" fill="#0d3a22"/><path d="M0 200v-36l60-12 70 14 80-14 90 12v36z" fill="#071c10"/><g stroke="#3b2a12" stroke-width="5" stroke-linecap="round"><line x1="40" y1="170" x2="46" y2="96"/><line x1="262" y1="172" x2="256" y2="104"/></g><g fill="#1f8a4b"><ellipse cx="46" cy="94" rx="26" ry="8"/><ellipse cx="46" cy="88" rx="10" ry="22"/><ellipse cx="256" cy="102" rx="26" ry="8"/><ellipse cx="256" cy="96" rx="10" ry="22"/></g><g stroke="#050a07" stroke-width="2"><rect x="136" y="116" width="14" height="30" rx="4" fill="#3d6b2e"/><circle cx="143" cy="108" r="9" fill="#e0b48a"/><path d="M134 106a9 9 0 0 1 18 0z" fill="#2c4a20"/><rect x="146" y="124" width="34" height="5" fill="#222"/><rect x="138" y="146" width="5" height="16" fill="#2a3d1c"/><rect x="145" y="146" width="5" height="16" fill="#2a3d1c"/></g><text x="150" y="42" font-size="27" font-weight="900" fill="#ffd45c" stroke="#5a1c08" stroke-width="3" paint-order="stroke" text-anchor="middle" font-family="Impact,sans-serif">COMANDO SELVA</text></svg>';};
+function armar(){JUEGOS=D.meta.map(function(m){return Object.assign({svg:SVG[m.id]||function(){return SVG.emoji(m.emoji||"🎮","#2a3350","#12172a");}},m);});}
+var cat="Todos",txt="",CATS=[];
+function calcCats(){CATS=["Todos"].concat(JUEGOS.filter(function(j){return !j.hide;}).map(function(j){return j.cat;}).filter(function(c,i,a){return a.indexOf(c)===i;}));if(CATS.indexOf(cat)<0)cat="Todos";}
+
+function pintarChips(){calcCats();
+  $("chips").innerHTML="";
+  CATS.forEach(function(c){
+    var b=document.createElement("button");b.className="chip"+(c===cat?" on":"");b.textContent=c;
+    b.onclick=function(){cat=c;pintarChips();pintar();};
+    $("chips").appendChild(b);
+  });
+}
+function pintar(){
+  var g=$("grid");g.innerHTML="";
+  var l=JUEGOS.filter(function(j){return (cat==="Todos"||j.cat===cat)&&!j.hide&&j.t.toLowerCase().indexOf(txt)>=0;});
+  if(!l.length){g.innerHTML='<div class="vacio">No hay juegos con ese nombre</div>';return;}
+  l.forEach(function(j){
+    var b=document.createElement("button");b.className="card"+(j.big?" big":"")+(j.pronto?" pronto":"");b.type="button";
+    b.innerHTML=cover(j)+'<span class="edit" role="button">✏️ Portada</span><span class="helpb" role="button" aria-label="Controles">?</span>'+(j.nuevo?'<span class="badge">NUEVO</span>':'')+'<span class="play">▶ Jugar</span><span class="info"><b>'+j.t+'</b><small>'+(j.pronto?"Próximamente":j.cat+" · "+j.tag)+'</small></span>';
+    if(!j.pronto)b.onclick=function(){abrir(j);};
+    b.querySelector(".edit").onclick=function(e){e.stopPropagation();editar(j);};
+    b.querySelector(".helpb").onclick=function(e){e.stopPropagation();ayuda(j);};
+    g.appendChild(b);
+  });
+}
+$("q").addEventListener("input",function(){txt=this.value.trim().toLowerCase();if(txt==="jonathan"||txt===clave()){this.value="";var w=txt;txt="";if(w==="jonathan")setAdm(!admOn);else setEd(!edOn);}pintar();});
+
+/* ---------- ayuda: controles de cada juego ---------- */
+var CTL={
+ comando:[["Moverse",[["A D / ◀ ▶","moverse"],["W / Espacio / ▲","saltar"],["S / ▼","agacharse tras cobertura"]]],["Combate",[["X / J / DISPARAR","disparar"],["R","recargar"],["G","granada (arrastra para apuntar)"],["H","soporte aéreo (desde la misión 5)"]]],["Sistema",[["P / Esc","pausa"],["Tienda","compra armas con monedas"],["Celular","botones táctiles en pantalla"]]]],
+ gusano:[["PC",[["Mouse","girar hacia el puntero"],["← → / A D","girar sin parar"],["Clic / Espacio / ↑ / W","turbo (gasta largo)"],["Clic derecho / F","disparar (modo Disparos)"],["P / Esc","pausa"]]],["Celular",[["Un dedo","mover para girar"],["Otro dedo / Turbo","correr"],["Fuego","disparar (modo Disparos)"],["❚❚","pausa"]]]],
+ billar:[["Apuntar y tirar",[["Arrastrar en la mesa","girar el palo alrededor de la blanca"],["Tocar una bola","apuntar directo a ella"],["Barra de potencia","arrastrar hacia abajo y soltar para tirar"],["Bolita de efecto","arriba sigue, abajo retrocede, lados = efecto lateral"],["Espacio / Tirar","tirar con la potencia elegida"],["← →","ajuste fino del ángulo"]]],["Reglas rápidas",[["Turnos","la primera bola que emboques define lisas o rayadas"],["Falta","el rival juega con bola en mano: arrastra la blanca"],["Esc","abrir o cerrar el menú"]]]],
+ zona:[["Mover",[["WASD","mover"],["Espacio","esquivar"],["Z","subir / bajar camioneta"]]],["Armas",[["Ratón","apuntar y disparar"],["1-4 / rueda","cambiar de arma"],["R","recargar"],["Q","autoapuntado"],["E","granada"],["T","bengala"]]],["Apoyos",[["F","aviones (zona SOS o donde apuntas)"],["G","artillería"],["B","paracaidistas"],["H","radio de la base (dentro)"]]],["Escuadra",[["C","orden: seguir / atacar / defender"],["V","puesto (o clic en el minimapa)"],["X","borrar puestos"],["Y","estrategia"]]],["Sistema",[["P","pausa"],["K","ver / ocultar controles"]]]],
+ arco:[["Disparo",[["Arrastrar","apuntar"],["Soltar","disparar"],["Viento y caída","cuéntalos antes de soltar la flecha"]]]],
+ triki:[["Jugar",[["Tocar / clic","poner tu marca en la casilla"],["1–9","elegir casilla con el teclado (de izquierda a derecha, arriba a abajo)"],["Esc","abrir el menú"]]],["Modos",[["2 jugadores","se turnan en el mismo dispositivo"],["Contra la CPU","Fácil, Normal o Imposible (no se le puede ganar)"],["Rondas","empieza uno y luego el otro; el marcador se guarda mientras juegas"]]]],
+ duelo:[["Jugador 1",[["A D","mover"],["W","saltar"],["S","bloquear"],["F","puño"],["G","patada"],["H","especial (bola de energía, 50% de barra)"],["E","transformación (barra al 100%)"]]],["Jugador 2",[["← →","mover"],["↑","saltar"],["↓","bloquear"],["K","puño"],["L","patada"],["J","especial"],["U","transformación"]]],["Trucos",[["Doble toque ◀ ▶","dash"],["Puño → patada → especial","combo encadenado"],["Vs CPU","también sirven flechas + K / L"],["Celular","botones en pantalla"]]]]
+};
+function ayuda(j){
+  var d=CTL[j.id]||[["",[["—","Este juego no tiene controles listados todavía."]]]];
+  $("hlpt").textContent="Controles · "+j.t;
+  $("hlpb").innerHTML=d.map(function(g){return (g[0]?"<h4>"+g[0]+"</h4>":"")+g[1].map(function(r){return '<div class="hrow"><kbd>'+r[0]+'</kbd><span>'+r[1]+'</span></div>';}).join("");}).join("");
+  $("hlp").hidden=false;
+}
+function cerrarAyuda(){$("hlp").hidden=true;}
+$("hlpx").onclick=cerrarAyuda;
+$("hlp").addEventListener("click",function(e){if(e.target===this)cerrarAyuda();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("hlp").hidden)cerrarAyuda();});
+$("phelp").onclick=function(){if(actual)ayuda(actual);};
+
+var fr=$("fr"),actual=null;
+function cargar(r){fr.removeAttribute("srcdoc");fr.src="juegos/"+actual.id+".html?v="+(actual.r||0)+(r?"&r="+Date.now():"");}
+fr.addEventListener("load",function(){if(actual){try{fr.contentWindow.focus();}catch(e){}}});
+function abrir(j){
+  actual=j;$("ptitle").textContent=j.t;$("player").hidden=false;
+  document.body.style.overflow="hidden";cargar();
+}
+function cerrar(){
+  actual=null;$("player").hidden=true;document.body.style.overflow="";
+  fr.removeAttribute("srcdoc");fr.src="about:blank";      // libera CPU y sonido
+  if(document.fullscreenElement&&document.exitFullscreen){document.exitFullscreen();}
+}
+$("back").onclick=cerrar;
+$("reload").onclick=function(){if(actual){cargar(1);}};
+if(!document.documentElement.requestFullscreen){$("full").hidden=true;}
+$("full").onclick=function(){
+  if(document.fullscreenElement){document.exitFullscreen();}
+  else{$("player").requestFullscreen().catch(function(){});}
+};
+
+
+/* ---------- editor de portadas (se desbloquea escribiendo la clave) ---------- */
+function getCov(id){var m=meta1(id);return m&&m.cov?"portadas/"+id+".jpg?v="+(m.cr||0):null;}
+function cover(j){var c=getCov(j.id);return c?'<img class="cov" src="'+c+'" alt="">':j.svg();}
+var edOn=false;try{edOn=localStorage.getItem("gal_ed")==="1";}catch(e){}
+function setEd(v){edOn=v;try{localStorage.setItem("gal_ed",v?"1":"0");}catch(e){}document.body.classList.toggle("ed",v);$("edbar").hidden=!v;}
+function clave(){try{return(localStorage.getItem("gal_key")||"editor").toLowerCase();}catch(e){return"editor";}}
+var buf="";
+addEventListener("keydown",function(e){
+  var t=e.target&&e.target.tagName;if(t==="INPUT"||t==="TEXTAREA")return;
+  if(e.key&&e.key.length===1){buf=(buf+e.key.toLowerCase()).slice(-40);var k=clave();if(k&&buf.slice(-k.length)===k){buf="";setEd(!edOn);}if(buf.slice(-8)==="jonathan"){buf="";setAdm(!admOn);}}
+});
+$("edoff").onclick=function(){setEd(false);};
+$("edkey").onclick=function(){var n=prompt("Nueva clave para abrir el editor (por ejemplo tu nombre):",clave());if(n&&n.trim()){try{localStorage.setItem("gal_key",n.trim().toLowerCase());}catch(e){}alert("Listo. Escribe «"+n.trim()+"» en el teclado para entrar o salir del editor.");}};
+var edG=null,img=null,Z=1,ox=0,oy=0,CW=400,edc=$("edc");
+function dibujar(){var c=edc.getContext("2d");c.fillStyle="#0a0d14";c.fillRect(0,0,CW,CW);if(!img)return;
+  var b=Math.max(CW/img.width,CW/img.height)*Z,w=img.width*b,h=img.height*b;
+  ox=Math.min(0,Math.max(CW-w,ox));oy=Math.min(0,Math.max(CW-h,oy));c.drawImage(img,ox,oy,w,h);}
+function cargarImg(src){var i=new Image();i.onload=function(){img=i;Z=1;$("edz").value=1;var b=Math.max(CW/i.width,CW/i.height);ox=(CW-i.width*b)/2;oy=(CW-i.height*b)/2;dibujar();};i.src=src;}
+function editar(j){edG=j;img=null;$("edt").textContent="Portada de "+j.t;$("edm").hidden=false;dibujar();var c=getCov(j.id);if(c)cargarImg(c);}
+$("edf").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){cargarImg(r.result);};r.readAsDataURL(f);this.value="";};
+$("edz").oninput=function(){if(!img)return;var b0=Math.max(CW/img.width,CW/img.height)*Z,cx=(CW/2-ox)/b0,cy=(CW/2-oy)/b0;Z=+this.value;var b=Math.max(CW/img.width,CW/img.height)*Z;ox=CW/2-cx*b;oy=CW/2-cy*b;dibujar();};
+var drag=null;
+edc.onpointerdown=function(e){drag={x:e.clientX,y:e.clientY,ox:ox,oy:oy};edc.setPointerCapture(e.pointerId);};
+edc.onpointermove=function(e){if(!drag)return;var k=CW/edc.getBoundingClientRect().width;ox=drag.ox+(e.clientX-drag.x)*k;oy=drag.oy+(e.clientY-drag.y)*k;dibujar();};
+edc.onpointerup=edc.onpointercancel=function(){drag=null;};
+$("eds").onclick=function(){if(!img){alert("Primero elige una imagen.");return;}var mm=meta1(edG.id);STG.cov[edG.id]=edc.toDataURL("image/jpeg",.88);mm.cov=1;mm.cr=Date.now();$("edm").hidden=true;publicar("Portada nueva: "+edG.t);};
+$("edx").onclick=function(){meta1(edG.id).cov=0;$("edm").hidden=true;publicar("Portada restaurada: "+edG.t);};
+$("edk").onclick=function(){$("edm").hidden=true;};
+$("edd").onclick=function(){if(!img)return;edc.toBlob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=edG.id+".jpg";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);},"image/jpeg",.9);};
+/* ---------- panel de administrador: guarda en tu repositorio de GitHub ---------- */
+var admOn=false;try{admOn=localStorage.getItem("gal_adm")==="1";}catch(e){}
+function toast(m,ms){var t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true;},ms||3500);}
+function setAdm(v){admOn=v;try{localStorage.setItem("gal_adm",v?"1":"0");}catch(e){}$("admb").hidden=!v;if(!v)$("adm").hidden=true;toast(v?"⚙️ Admin activado":"Admin oculto",2000);}
+function att(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
+function ghc(){try{return JSON.parse(localStorage.getItem("gal_gh")||"{}");}catch(e){return{};}}
+function gh(c,m,p,b){return fetch("https://api.github.com/repos/"+c.u+"/"+c.r+"/contents/"+p+(m==="GET"?"?ref="+encodeURIComponent(c.b||"main"):""),{method:m,headers:{Authorization:"Bearer "+c.t,Accept:"application/vnd.github+json"},body:b?JSON.stringify(b):undefined}).then(function(r){if(r.status===404&&m==="GET")return null;return r.json().then(function(j){if(!r.ok)throw new Error(j.message||r.status);return j;});});}
+function subir(c,p,b64,msg){return gh(c,"GET",p).then(function(x){var b={message:msg,content:b64,branch:c.b||"main"};if(x&&x.sha)b.sha=x.sha;return gh(c,"PUT",p,b);});}
+function borrar(c,p,msg){return gh(c,"GET",p).then(function(x){if(!x)return;return gh(c,"DELETE",p,{message:msg,sha:x.sha,branch:c.b||"main"});});}
+function b64(buf){var a=new Uint8Array(buf),s="",i;for(i=0;i<a.length;i+=32768)s+=String.fromCharCode.apply(null,a.subarray(i,i+32768));return btoa(s);}
+function publicar(msg){
+  var c=ghc();if(!c.u||!c.r||!c.t){toast("Primero guarda la conexión con GitHub",5000);adm();$("adgh").open=true;return;}
+  D.v=Date.now();var jobs=[],n=0;
+  Object.keys(STG.g).forEach(function(id){jobs.push(function(){return STG.g[id].arrayBuffer().then(function(a){return subir(c,"juegos/"+id+".html",b64(a),msg);});});});
+  Object.keys(STG.cov).forEach(function(id){jobs.push(function(){return subir(c,"portadas/"+id+".jpg",STG.cov[id].split(",")[1],msg);});});
+  STG.del.forEach(function(id){jobs.push(function(){return borrar(c,"juegos/"+id+".html",msg);});jobs.push(function(){return borrar(c,"portadas/"+id+".jpg",msg);});});
+  jobs.push(function(){return subir(c,"games.json",btoa(unescape(encodeURIComponent(JSON.stringify({v:D.v,meta:D.meta},null,1)))),msg);});
+  toast("Publicando… 0/"+jobs.length,120000);
+  return jobs.reduce(function(p,j){return p.then(function(){return j().then(function(){toast("Publicando… "+(++n)+"/"+jobs.length,120000);});});},Promise.resolve())
+    .then(function(){STG={g:{},cov:{},del:[]};armar();pintarChips();pintar();toast("✅ Guardado en GitHub. En 1 o 2 minutos se actualiza solo en todos los dispositivos.",9000);})
+    .catch(function(e){toast("No se pudo publicar: "+e.message,9000);});
+}
+function leerJson(first){
+  return fetch("games.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){
+    if(!first&&(!$("adm").hidden||d.v<=D.v))return;
+    var old=actual?{id:actual.id,r:actual.r}:null;
+    D=d;armar();pintarChips();pintar();
+    if(old){var nj=JUEGOS.filter(function(j){return j.id===old.id;})[0];if(!nj){cerrar();return;}actual=nj;if((nj.r||0)!==(old.r||0)){cargar(1);toast("Juego actualizado");}}
+  }).catch(function(){if(first){armar();pintarChips();pintar();}});
+}
+function leer(){[].forEach.call($("adl").querySelectorAll(".ar"),function(r){var m=D.meta[+r.dataset.i];m.t=r.querySelector(".at").value.trim()||m.t;m.cat=r.querySelector(".ac").value.trim()||m.cat;m.tag=r.querySelector(".ag").value.trim();m.hide=r.querySelector(".av").checked?0:1;m.nuevo=r.querySelector(".an").checked?1:0;});}
+function adm(){
+  var h="",c=ghc();
+  D.meta.forEach(function(m,i){h+='<div class="ar" data-i="'+i+'"><input class="ai at" value="'+att(m.t)+'" placeholder="Título"><input class="ai ac" value="'+att(m.cat)+'" placeholder="Categoría"><input class="ai ag" value="'+att(m.tag)+'" placeholder="Descripción corta"><div class="ab"><label><input type="checkbox" class="av"'+(m.hide?"":" checked")+'> Visible</label><label><input type="checkbox" class="an"'+(m.nuevo?" checked":"")+'> NUEVO</label><label class="f">📄 Reemplazar juego<input type="file" class="afi" accept=".html,.htm,text/html" hidden></label><button type="button" class="apo">🖼 Portada</button><button type="button" class="ade">🗑 Quitar</button></div></div>';});
+  $("adl").innerHTML=h;$("agu").value=c.u||"";$("agr").value=c.r||"";$("agb").value=c.b||"main";$("agt").value=c.t||"";
+  $("adm").hidden=false;
+}
+function portada(f){return new Promise(function(ok,no){var u=URL.createObjectURL(f),i=new Image();i.onload=function(){var c=document.createElement("canvas");c.width=c.height=400;var x=c.getContext("2d"),b=Math.max(400/i.width,400/i.height),w=i.width*b,h=i.height*b;x.drawImage(i,(400-w)/2,(400-h)/2,w,h);URL.revokeObjectURL(u);ok(c.toDataURL("image/jpeg",.88));};i.onerror=function(){no(new Error("No se pudo leer la imagen."));};i.src=u;});}
+function leerOk(f){return f.text().then(function(t){if(!/<(!doctype|html|script|canvas)/i.test(t))throw new Error("Ese archivo no parece un juego HTML.");});}
+$("adl").addEventListener("change",function(e){
+  var el=e.target;if(!el.classList.contains("afi")||!el.files[0])return;
+  var m=D.meta[+el.closest(".ar").dataset.i],f=el.files[0];
+  leerOk(f).then(function(){leer();STG.g[m.id]=f;m.r=Date.now();$("adm").hidden=true;publicar("Juego actualizado: "+m.t);}).catch(function(x){alert(x.message);});
+});
+$("adl").addEventListener("click",function(e){
+  var el=e.target,r=el.closest(".ar");if(!r)return;var i=+r.dataset.i,m=D.meta[i];
+  if(el.classList.contains("apo")){leer();$("adm").hidden=true;editar(JUEGOS[i]);}
+  if(el.classList.contains("ade")&&confirm("¿Quitar «"+m.t+"» de la galería?")){leer();D.meta.splice(i,1);delete STG.g[m.id];STG.del.push(m.id);$("adm").hidden=true;publicar("Juego quitado: "+m.t);}
+});
+function ainfo(){var a=$("adn").files[0],b=$("adcv").files[0];$("adi").textContent="Juego: "+(a?a.name:"—")+" · Portada: "+(b?b.name:"sin portada (ícono 🎮)");}
+$("adn").onchange=ainfo;$("adcv").onchange=ainfo;
+$("adg").onclick=function(){
+  var f=$("adn").files[0],cf=$("adcv").files[0],t=$("adt").value.trim();
+  if(!f){alert("Elige el archivo .html del juego.");return;}
+  if(!t){alert("Escribe primero el título del juego nuevo.");return;}
+  Promise.all([leerOk(f),cf?portada(cf):null]).then(function(r){leer();var id="j"+Date.now().toString(36),m={id:id,t:t,cat:"Otros",tag:"Juego nuevo",big:1,nuevo:1,emoji:"🎮",r:Date.now()};if(r[1]){STG.cov[id]=r[1];m.cov=1;m.cr=Date.now();}STG.g[id]=f;D.meta.push(m);$("adm").hidden=true;return publicar("Juego agregado: "+t);}).catch(function(x){alert(x.message);});
+};
+$("ags").onclick=function(){try{localStorage.setItem("gal_gh",JSON.stringify({u:$("agu").value.trim(),r:$("agr").value.trim(),b:$("agb").value.trim()||"main",t:$("agt").value.trim()}));}catch(e){}toast("Conexión guardada en este dispositivo",3000);};
+$("adp").onclick=function(){leer();$("adm").hidden=true;publicar("Ajustes de la galería");};
+$("adc").onclick=function(){$("adm").hidden=true;};
+$("admb").onclick=adm;$("admb").hidden=!admOn;
+setEd(edOn);
+leerJson(1);setInterval(function(){if(!document.hidden)leerJson();},6000);
+})();
+</script>
+</body>
+</html>

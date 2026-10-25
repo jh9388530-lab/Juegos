@@ -1,0 +1,60 @@
+{
+ "v": 1,
+ "meta": [
+  {
+   "id": "gusano",
+   "t": "Gusano Hambriento",
+   "cat": "Acción",
+   "tag": "Come, crece y sobrevive",
+   "big": 1,
+   "nuevo": 1
+  },
+  {
+   "id": "billar",
+   "t": "Billar 8 Ball",
+   "cat": "Deportes",
+   "tag": "2 jugadores por turnos",
+   "big": 1
+  },
+  {
+   "id": "zona",
+   "t": "Zona Cero",
+   "cat": "Acción",
+   "tag": "Modo oleadas",
+   "big": 1,
+   "nuevo": 1
+  },
+  {
+   "id": "comando",
+   "t": "Comando Selva",
+   "cat": "Acción",
+   "tag": "Misiones · móvil y PC",
+   "big": 1,
+   "nuevo": 1
+  },
+  {
+   "id": "arco",
+   "t": "Tiro con arco",
+   "cat": "Deportes",
+   "tag": "Puntería",
+   "big": 1,
+   "nuevo": 1
+  },
+  {
+   "id": "duelo",
+   "t": "Duelo de Puños",
+   "cat": "Acción",
+   "tag": "Pelea 1 o 2 jugadores",
+   "big": 1,
+   "nuevo": 1
+  },
+  {
+   "id": "triki",
+   "t": "Triki · X y O",
+   "cat": "Clásicos",
+   "tag": "1 o 2 jugadores",
+   "big": 1,
+   "nuevo": 1
+  }
+ ]
+}
