@@ -45,7 +45,7 @@ body.land .bar{margin:4px 0}body.land .pw{flex-wrap:wrap}body.land .pw input{min
 .mbox button.sel{outline:3px solid #b88a3c;outline-offset:1px}
 .mbox button.big{font-size:17px;padding:12px;background:#1f9a57;color:#fff}
 .mbox details{margin-top:12px;text-align:left;font-size:13px}.mbox summary{cursor:pointer;font-weight:700;text-align:center}
-</style>
+p.reglas{display:none!important}p.reglas.o{display:block!important}</style>
 </head>
 <body>
 <div id="menu"><div class="mbox">
@@ -60,7 +60,7 @@ body.land .bar{margin:4px 0}body.land .pw{flex-wrap:wrap}body.land .pw input{min
 <canvas id="c"></canvas>
 <div id="side">
 <div id="hint" hidden>📱 Gira el celular para una mesa más grande (toca para cerrar)</div>
-<div class="bar"><span id="info"></span><span><button id="bm">☰ Menú</button> <button id="b1">Reiniciar</button> <button id="b3" title="Sonido">🔊</button></span></div>
+<div class="bar"><span id="info"></span><span><button id="bhelp" type="button" onclick="var q=document.querySelector('p.reglas');var o=q.classList.toggle('o');this.textContent=o?'Cómo jugar ▴':'Cómo jugar ▾'">Cómo jugar ▾</button> <button id="bm">☰ Menú</button> <button id="b1">Reiniciar</button> <button id="b3" title="Sonido">🔊</button></span></div>
 <div id="tray"></div>
 <div class="bar pw"><label for="pw">Potencia</label><input type="range" id="pw" min="5" max="100" value="55"><b id="pv">55%</b><button id="shoot">Tirar</button></div>
 </div>

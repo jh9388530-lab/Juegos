@@ -88,7 +88,7 @@ h1{margin:0 0 4px;font-size:30px;letter-spacing:-.5px}h1 b{color:var(--x)}h1 i{c
     <div class="seg" id="gtim"><button data-v="0" class="on">Sin límite</button><button data-v="5">Rápido · 5 s</button></div>
     <button class="big" id="play">Jugar</button>
     <button class="mini" id="cont" hidden>Continuar partida</button>
-    <p class="sub" style="margin:14px 0 0;font-size:12px">Teclado: 1–9 para elegir casilla · Esc para el menú</p>
+    <button class="mini" id="bhow" type="button" style="margin-top:12px" onclick="var q=document.getElementById('how');var o=q.style.display==='none';q.style.display=o?'block':'none';this.textContent=o?'Cómo jugar ▴':'Cómo jugar ▾'">Cómo jugar ▾</button><p class="sub" id="how" style="display:none;margin:10px 0 0;font-size:12px">Teclado: 1–9 para elegir casilla · Esc para el menú</p>
   </div>
 </div>
 
