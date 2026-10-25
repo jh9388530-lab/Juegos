@@ -1,5 +1,5 @@
 {
- "v": 1792945215006,
+ "v": 1792951156353,
  "meta": [
   {
    "id": "gusano",
@@ -7,14 +7,19 @@
    "cat": "Acción",
    "tag": "Come, crece y sobrevive",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "billar",
    "t": "Billar 8 Ball",
    "cat": "Deportes",
    "tag": "2 jugadores por turnos",
-   "big": 1
+   "big": 1,
+   "hide": 0,
+   "nuevo": 0,
+   "cov": 1,
+   "cr": 1792951156338
   },
   {
    "id": "zona",
@@ -22,7 +27,8 @@
    "cat": "Acción",
    "tag": "Modo oleadas",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "comando",
@@ -30,7 +36,8 @@
    "cat": "Acción",
    "tag": "Misiones · móvil y PC",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "arco",
@@ -38,7 +45,8 @@
    "cat": "Deportes",
    "tag": "Puntería",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "duelo",
@@ -48,7 +56,8 @@
    "big": 1,
    "nuevo": 1,
    "cov": 1,
-   "cr": 1792945215006
+   "cr": 1792945215006,
+   "hide": 0
   },
   {
    "id": "triki",
@@ -56,7 +65,8 @@
    "cat": "Clásicos",
    "tag": "1 o 2 jugadores",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   }
  ]
 }
