@@ -276,7 +276,8 @@ function probar(c){
       if(p.j.build_type==="workflow"){note("ℹ️ Pages se publica con GitHub Actions: revisa en la pestaña Actions que el despliegue termine bien.");return;}
       if(src.branch){if(src.branch!==c.b){note("🔧 Pages publica desde la rama «"+src.branch+"», no «"+c.b+"». La cambié.");c.b=src.branch;}else note("✅ Rama correcta: "+c.b+".");}
       pre=src.path&&src.path!=="/"?src.path.replace(/^\/+|\/+$/g,"")+"/":"";
-      var sub="";try{var u=new URL(p.j.html_url);if(u.host===location.host&&location.pathname.indexOf(u.pathname)===0)sub=location.pathname.slice(u.pathname.length).replace(/[^\/]*$/,"");}catch(e){}
+      var sub=null;try{var u=new URL(p.j.html_url);if(u.host===location.host&&location.pathname.indexOf(u.pathname)===0)sub=location.pathname.slice(u.pathname.length).replace(/[^\/]*$/,"");}catch(e){}
+      if(sub===null){note("ℹ️ Para comprobar la carpeta abre la galería desde su dirección publicada (no desde un archivo local ni localhost). Carpeta actual: "+(c.p||"raíz")+".");return;}
       var want=pre+sub;
       if((c.p||"")!==want){note("🔧 La galería vive en «"+(want||"la raíz")+"» del repositorio, no en «"+(c.p||"la raíz")+"». Lo ajusté.");c.p=want;}else note("✅ Carpeta correcta: "+(c.p||"raíz")+".");
     });
@@ -314,6 +315,7 @@ function publicar2(msg,c,fx){
     .catch(function(e){D.v=vOld;toast("No se pudo publicar: "+e.message,9000);});
 }
 function leerJson(first){
+  if(location.protocol==="file:"){if(first){armar();pintarChips();pintar();toast("Abierta desde un archivo local: se usan los datos de index.html. Para ver lo publicado abre la dirección de tu página.",7000);}return Promise.resolve();}
   return fetch("games.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){if(!d||!d.meta)throw 0;
     if(!first&&(!$("adm").hidden||d.v<=D.v))return;
     var old=actual?{id:actual.id,r:actual.r}:null;
