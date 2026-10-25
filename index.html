@@ -89,7 +89,7 @@ body.ed .edit{display:block}
 <div id="hlp" hidden><div class="hbox"><h3 id="hlpt"></h3><div id="hlpb"></div><button id="hlpx">Entendido</button></div></div>
 
 <div id="adm" hidden><div class="adb"><h3>⚙️ Panel de administrador</h3><small>Al publicar se guarda en GitHub y en 1 o 2 minutos se actualiza solo en todos los dispositivos que tengan abierta la galería.</small>
-<details id="adgh"><summary>🔑 Conexión con GitHub</summary><div class="ab"><input class="ai" id="agu" placeholder="Usuario u organización"><input class="ai" id="agr" placeholder="Repositorio"><input class="ai" id="agb" placeholder="Rama (main)"></div><div class="ab"><input class="ai" id="agt" type="password" placeholder="Token de acceso (solo se guarda en este dispositivo)"><button id="ags" type="button">Guardar conexión</button></div></details>
+<details id="adgh"><summary>🔑 Conexión con GitHub</summary><div class="ab"><input class="ai" id="agu" placeholder="Usuario u organización"><input class="ai" id="agr" placeholder="Repositorio"><input class="ai" id="agb" placeholder="Rama (main)"><input class="ai" id="agp" placeholder="Carpeta en el repo (vacío = raíz)"></div><div class="ab"><input class="ai" id="agt" type="password" placeholder="Token de acceso (solo se guarda en este dispositivo)"><button id="ags" type="button">Guardar conexión</button><button id="agq" type="button">🔍 Probar conexión</button></div><small id="agst"></small></details>
 <div id="adl"></div><div class="ab"><input class="ai" id="adt" placeholder="Título del juego nuevo"></div><div class="ab"><label class="f">📄 Archivo del juego (.html)<input type="file" id="adn" accept=".html,.htm,text/html" hidden></label><label class="f">🖼 Portada (imagen)<input type="file" id="adcv" accept="image/*" hidden></label><button class="p" id="adg" type="button">➕ Agregar juego</button></div><small id="adi">Elige el juego y su portada; sin portada saldrá con un ícono 🎮.</small>
 <div class="ab"><button class="p" id="adp" type="button">💾 Publicar cambios</button><button id="adc" type="button">Cerrar</button></div></div></div>
 <div id="toast" hidden></div>
@@ -252,35 +252,80 @@ function toast(m,ms){var t=$("toast");t.textContent=m;t.hidden=false;clearTimeou
 function setAdm(v){admOn=v;try{localStorage.setItem("gal_adm",v?"1":"0");}catch(e){}$("admb").hidden=!v;if(!v)$("adm").hidden=true;toast(v?"⚙️ Admin activado":"Admin oculto",2000);}
 function att(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
 function ghc(){try{return JSON.parse(localStorage.getItem("gal_gh")||"{}");}catch(e){return{};}}
-function gh(c,m,p,b){return fetch("https://api.github.com/repos/"+c.u+"/"+c.r+"/contents/"+p+(m==="GET"?"?ref="+encodeURIComponent(c.b||"main"):""),{method:m,headers:{Authorization:"Bearer "+c.t,Accept:"application/vnd.github+json"},body:b?JSON.stringify(b):undefined}).then(function(r){if(r.status===404&&m==="GET")return null;return r.json().then(function(j){if(!r.ok)throw new Error(j.message||r.status);return j;});});}
+function gh(c,m,p,b){return fetch("https://api.github.com/repos/"+c.u+"/"+c.r+"/contents/"+(c.p||"")+p+(m==="GET"?"?ref="+encodeURIComponent(c.b||"main"):""),{method:m,headers:{Authorization:"Bearer "+c.t,Accept:"application/vnd.github+json"},body:b?JSON.stringify(b):undefined}).then(function(r){if(r.status===404&&m==="GET")return null;return r.json().then(function(j){if(!r.ok)throw new Error(j.message||r.status);return j;});});}
 function subir(c,p,b64,msg){return gh(c,"GET",p).then(function(x){var b={message:msg,content:b64,branch:c.b||"main"};if(x&&x.sha)b.sha=x.sha;return gh(c,"PUT",p,b);});}
 function borrar(c,p,msg){return gh(c,"GET",p).then(function(x){if(!x)return;return gh(c,"DELETE",p,{message:msg,sha:x.sha,branch:c.b||"main"});});}
 function b64(buf){var a=new Uint8Array(buf),s="",i;for(i=0;i<a.length;i+=32768)s+=String.fromCharCode.apply(null,a.subarray(i,i+32768));return btoa(s);}
+function np(v){v=String(v||"").trim().replace(/^\/+|\/+$/g,"");return v?v+"/":"";}
+function probar(c){
+  var msgs=[],fatal=false,note=function(m){msgs.push(m);};
+  var api=function(p){return fetch("https://api.github.com/repos/"+c.u+"/"+c.r+p,{headers:{Authorization:"Bearer "+c.t,Accept:"application/vnd.github+json"}}).then(function(r){return r.json().then(function(j){return{s:r.status,j:j};},function(){return{s:r.status,j:{}};});});};
+  return api("").then(function(r){
+    if(r.s===401){fatal=true;note("❌ El token no es válido o ya venció.");return;}
+    if(r.s===404||r.s===403){fatal=true;note("❌ No encuentro «"+c.u+"/"+c.r+"» o el token no tiene acceso a ese repositorio.");return;}
+    if(r.j.permissions&&r.j.permissions.push===false){fatal=true;note("❌ El token no puede escribir (necesita Contents: Read and write).");return;}
+    note("✅ Repositorio y token correctos.");
+    if(!c.b)c.b=r.j.default_branch||"main";
+    return api("/branches/"+encodeURIComponent(c.b)).then(function(b){
+      if(b.s===404&&r.j.default_branch&&r.j.default_branch!==c.b){note("🔧 La rama «"+c.b+"» no existe; usé «"+r.j.default_branch+"».");c.b=r.j.default_branch;}
+      return api("/pages");
+    }).then(function(p){
+      if(p.s===404){note("⚠️ GitHub Pages no está activado (Settings → Pages → Deploy from a branch).");return;}
+      if(p.s!==200){note("ℹ️ No pude leer la configuración de Pages (falta ese permiso en el token); lo compruebo con el sitio en vivo.");return;}
+      var src=p.j.source||{},pre="";
+      if(p.j.build_type==="workflow"){note("ℹ️ Pages se publica con GitHub Actions: revisa en la pestaña Actions que el despliegue termine bien.");return;}
+      if(src.branch){if(src.branch!==c.b){note("🔧 Pages publica desde la rama «"+src.branch+"», no «"+c.b+"». La cambié.");c.b=src.branch;}else note("✅ Rama correcta: "+c.b+".");}
+      pre=src.path&&src.path!=="/"?src.path.replace(/^\/+|\/+$/g,"")+"/":"";
+      var sub="";try{var u=new URL(p.j.html_url);if(u.host===location.host&&location.pathname.indexOf(u.pathname)===0)sub=location.pathname.slice(u.pathname.length).replace(/[^\/]*$/,"");}catch(e){}
+      var want=pre+sub;
+      if((c.p||"")!==want){note("🔧 La galería vive en «"+(want||"la raíz")+"» del repositorio, no en «"+(c.p||"la raíz")+"». Lo ajusté.");c.p=want;}else note("✅ Carpeta correcta: "+(c.p||"raíz")+".");
+    });
+  }).then(function(){try{localStorage.setItem("gal_gh",JSON.stringify(c));}catch(e){}return{fatal:fatal,msgs:msgs};});
+}
+function esperar(v,fx){
+  var pre=(fx&&fx.length?fx.join(" ")+" ":"");
+  if(location.protocol==="file:"){toast(pre+"✅ Guardado en GitHub (desde un archivo local no puedo comprobar la página en vivo).",10000);return;}
+  var t0=Date.now();
+  return new Promise(function(ok){(function tick(){
+    fetch("games.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){
+      if(d&&d.v>=v){toast(pre+"✅ Publicado: la página en vivo ya muestra tus cambios.",9000);return ok();}
+      if(Date.now()-t0>240000){toast(pre+"⚠️ Se guardó en GitHub, pero después de 4 min la página en vivo sigue con la versión anterior. Abre ⚙️ → 🔑 → «Probar conexión» para revisar rama y carpeta de Pages, y mira en GitHub → Actions si el despliegue falló.",20000);return ok();}
+      toast("☁️ Guardado en GitHub. Esperando a que GitHub Pages lo publique… "+Math.round((Date.now()-t0)/1000)+" s",8000);setTimeout(tick,5000);
+    });
+  })();});
+}
 function publicar(msg){
   var c=ghc();if(!c.u||!c.r||!c.t){toast("Primero guarda la conexión con GitHub",5000);adm();$("adgh").open=true;return;}
-  D.v=Date.now();var jobs=[],n=0;
+  toast("Comprobando la conexión con GitHub…",60000);
+  return probar(c).then(function(r){
+    if(r.fatal){toast(r.msgs.join(" "),12000);adm();$("adgh").open=true;return;}
+    return publicar2(msg,ghc(),r.msgs.filter(function(m){return m.indexOf("🔧")===0;}));
+  }).catch(function(e){toast("No se pudo comprobar la conexión: "+e.message,9000);});
+}
+function publicar2(msg,c,fx){
+  var vOld=D.v;D.v=Date.now();var jobs=[],n=0;
   Object.keys(STG.g).forEach(function(id){jobs.push(function(){return STG.g[id].arrayBuffer().then(function(a){return subir(c,"juegos/"+id+".html",b64(a),msg);});});});
   Object.keys(STG.cov).forEach(function(id){jobs.push(function(){return subir(c,"portadas/"+id+".jpg",STG.cov[id].split(",")[1],msg);});});
   STG.del.forEach(function(id){jobs.push(function(){return borrar(c,"juegos/"+id+".html",msg);});jobs.push(function(){return borrar(c,"portadas/"+id+".jpg",msg);});});
   jobs.push(function(){return subir(c,"games.json",btoa(unescape(encodeURIComponent(JSON.stringify({v:D.v,meta:D.meta},null,1)))),msg);});
   toast("Publicando… 0/"+jobs.length,120000);
   return jobs.reduce(function(p,j){return p.then(function(){return j().then(function(){toast("Publicando… "+(++n)+"/"+jobs.length,120000);});});},Promise.resolve())
-    .then(function(){STG={g:{},cov:{},del:[]};armar();pintarChips();pintar();toast("✅ Guardado en GitHub. En 1 o 2 minutos se actualiza solo en todos los dispositivos.",9000);})
-    .catch(function(e){toast("No se pudo publicar: "+e.message,9000);});
+    .then(function(){STG={g:{},cov:{},del:[]};armar();pintarChips();pintar();return esperar(D.v,fx);})
+    .catch(function(e){D.v=vOld;toast("No se pudo publicar: "+e.message,9000);});
 }
 function leerJson(first){
-  return fetch("games.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){
+  return fetch("games.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){if(!d||!d.meta)throw 0;
     if(!first&&(!$("adm").hidden||d.v<=D.v))return;
     var old=actual?{id:actual.id,r:actual.r}:null;
     D=d;armar();pintarChips();pintar();
     if(old){var nj=JUEGOS.filter(function(j){return j.id===old.id;})[0];if(!nj){cerrar();return;}actual=nj;if((nj.r||0)!==(old.r||0)){cargar(1);toast("Juego actualizado");}}
-  }).catch(function(){if(first){armar();pintarChips();pintar();}});
+  }).catch(function(){if(first){armar();pintarChips();pintar();if(location.protocol!=="file:")toast("⚠️ No pude leer games.json: se muestran los datos incluidos en index.html, que pueden estar desactualizados.",9000);}});
 }
 function leer(){[].forEach.call($("adl").querySelectorAll(".ar"),function(r){var m=D.meta[+r.dataset.i];m.t=r.querySelector(".at").value.trim()||m.t;m.cat=r.querySelector(".ac").value.trim()||m.cat;m.tag=r.querySelector(".ag").value.trim();m.hide=r.querySelector(".av").checked?0:1;m.nuevo=r.querySelector(".an").checked?1:0;});}
 function adm(){
   var h="",c=ghc();
   D.meta.forEach(function(m,i){h+='<div class="ar" data-i="'+i+'"><input class="ai at" value="'+att(m.t)+'" placeholder="Título"><input class="ai ac" value="'+att(m.cat)+'" placeholder="Categoría"><input class="ai ag" value="'+att(m.tag)+'" placeholder="Descripción corta"><div class="ab"><label><input type="checkbox" class="av"'+(m.hide?"":" checked")+'> Visible</label><label><input type="checkbox" class="an"'+(m.nuevo?" checked":"")+'> NUEVO</label><label class="f">📄 Reemplazar juego<input type="file" class="afi" accept=".html,.htm,text/html" hidden></label><button type="button" class="apo">🖼 Portada</button><button type="button" class="ade">🗑 Quitar</button></div></div>';});
-  $("adl").innerHTML=h;$("agu").value=c.u||"";$("agr").value=c.r||"";$("agb").value=c.b||"main";$("agt").value=c.t||"";
+  $("adl").innerHTML=h;$("agu").value=c.u||"";$("agr").value=c.r||"";$("agb").value=c.b||"main";$("agp").value=(c.p||"").replace(/\/$/,"");$("agt").value=c.t||"";
   $("adm").hidden=false;
 }
 function portada(f){return new Promise(function(ok,no){var u=URL.createObjectURL(f),i=new Image();i.onload=function(){var c=document.createElement("canvas");c.width=c.height=400;var x=c.getContext("2d"),b=Math.max(400/i.width,400/i.height),w=i.width*b,h=i.height*b;x.drawImage(i,(400-w)/2,(400-h)/2,w,h);URL.revokeObjectURL(u);ok(c.toDataURL("image/jpeg",.88));};i.onerror=function(){no(new Error("No se pudo leer la imagen."));};i.src=u;});}
@@ -303,7 +348,9 @@ $("adg").onclick=function(){
   if(!t){alert("Escribe primero el título del juego nuevo.");return;}
   Promise.all([leerOk(f),cf?portada(cf):null]).then(function(r){leer();var id="j"+Date.now().toString(36),m={id:id,t:t,cat:"Otros",tag:"Juego nuevo",big:1,nuevo:1,emoji:"🎮",r:Date.now()};if(r[1]){STG.cov[id]=r[1];m.cov=1;m.cr=Date.now();}STG.g[id]=f;D.meta.push(m);$("adm").hidden=true;return publicar("Juego agregado: "+t);}).catch(function(x){alert(x.message);});
 };
-$("ags").onclick=function(){try{localStorage.setItem("gal_gh",JSON.stringify({u:$("agu").value.trim(),r:$("agr").value.trim(),b:$("agb").value.trim()||"main",t:$("agt").value.trim()}));}catch(e){}toast("Conexión guardada en este dispositivo",3000);};
+$("ags").onclick=function(){try{localStorage.setItem("gal_gh",JSON.stringify({u:$("agu").value.trim(),r:$("agr").value.trim(),b:$("agb").value.trim()||"main",p:np($("agp").value),t:$("agt").value.trim()}));}catch(e){}toast("Conexión guardada en este dispositivo",3000);};
+$("agq").onclick=function(){$("ags").onclick();var c=ghc(),o=$("agst");if(!c.u||!c.r||!c.t){o.textContent="Completa usuario, repositorio y token.";return;}o.textContent="Probando…";
+  probar(c).then(function(r){o.innerHTML=r.msgs.map(att).join("<br>");$("agb").value=ghc().b||"main";$("agp").value=(ghc().p||"").replace(/\/$/,"");}).catch(function(e){o.textContent="❌ "+e.message;});};
 $("adp").onclick=function(){leer();$("adm").hidden=true;publicar("Ajustes de la galería");};
 $("adc").onclick=function(){$("adm").hidden=true;};
 $("admb").onclick=adm;$("admb").hidden=!admOn;
