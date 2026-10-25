@@ -1,5 +1,5 @@
 {
- "v": 1792951156353,
+ "v": 1792952565830,
  "meta": [
   {
    "id": "gusano",
@@ -37,7 +37,9 @@
    "tag": "Misiones · móvil y PC",
    "big": 1,
    "nuevo": 1,
-   "hide": 0
+   "hide": 0,
+   "cov": 1,
+   "cr": 1792952564523
   },
   {
    "id": "arco",
