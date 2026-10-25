@@ -38,6 +38,13 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:0 0 24px}
 .pbar button{background:#1c2332;color:var(--fg);border:0;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer}
 .pbar button:hover{background:#27324a}
 #ptitle{font-size:15px}
+@media (max-height:520px){.pbar{padding:3px 8px;padding-top:max(3px,env(safe-area-inset-top))}.pbar button{padding:4px 10px;font-size:13px}#ptitle{display:none}}
+#player{position:fixed}
+#player.hb .pbar,#player.fs .pbar{display:none}
+#player.peek .pbar{display:flex;position:absolute;top:0;left:0;right:0;z-index:61;background:#0e1118ee}
+#phandle{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:60;width:56px;height:18px;border-radius:0 0 12px 12px;background:#000b;color:#fff;border:0;font-size:12px;line-height:16px;padding:0;cursor:pointer}
+#player.hb #phandle,#player.fs #phandle{display:block}
+#player.peek #phandle{display:none}
 #fr{flex:1;border:0;width:100%;background:#000}
 .card img.cov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .edit{position:absolute;right:48px;bottom:8px;z-index:3;background:var(--ac);color:#1b1500;border-radius:999px;padding:6px 11px;font:800 12px system-ui;display:none}
@@ -94,6 +101,7 @@ body.ed .edit{display:block}
 <div class="ab"><button class="p" id="adp" type="button">💾 Publicar cambios</button><button id="adc" type="button">Cerrar</button></div></div></div>
 <div id="toast" hidden></div>
 <div id="player" hidden>
+  <button id="phandle" aria-label="Mostrar barra">☰</button>
   <div class="pbar"><button id="back">← Galería</button><b id="ptitle"></b><span><button id="phelp" title="Controles">?</button> <button id="reload" title="Reiniciar juego">⟳</button> <button id="full" title="Pantalla completa">⛶</button></span></div>
   <iframe id="fr" allow="fullscreen; autoplay"></iframe>
 </div>
@@ -199,7 +207,12 @@ $("phelp").onclick=function(){if(actual)ayuda(actual);};
 var fr=$("fr"),actual=null;
 function cargar(r){fr.removeAttribute("srcdoc");fr.src="juegos/"+actual.id+".html?v="+(actual.r||0)+(r?"&r="+Date.now():"");}
 fr.addEventListener("load",function(){if(actual){try{fr.contentWindow.focus();}catch(e){}}});
-function abrir(j){
+var mqh=window.matchMedia("(max-height:520px)"),tpk=0;
+function barra(){var p=$("player");p.classList.toggle("hb",mqh.matches);if(!mqh.matches)p.classList.remove("peek");}
+if(mqh.addEventListener)mqh.addEventListener("change",barra);else mqh.addListener(barra);
+document.addEventListener("fullscreenchange",function(){$("player").classList.toggle("fs",!!document.fullscreenElement);});
+$("phandle").onclick=function(){var p=$("player");p.classList.add("peek");clearTimeout(tpk);tpk=setTimeout(function(){p.classList.remove("peek");},4000);};
+function abrir(j){$("player").classList.remove("peek");barra();
   actual=j;$("ptitle").textContent=j.t;$("player").hidden=false;
   document.body.style.overflow="hidden";cargar();
 }

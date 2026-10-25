@@ -44,7 +44,7 @@ h1{margin:0 0 4px;font-size:30px;letter-spacing:-.5px}h1 b{color:var(--x)}h1 i{c
 @keyframes dr{to{stroke-dashoffset:0}}
 .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .big{background:var(--ac);color:#1b1500;border:0;border-radius:12px;padding:11px 20px;font-weight:800;font-size:16px}
-#menu{position:fixed;inset:0;z-index:10;background:#000b;display:flex;align-items:center;justify-content:center;padding:14px}
+#menu{position:fixed;inset:0;z-index:10;background:#000b;display:flex;overflow-y:auto;padding:14px}.mbox{margin:auto}
 #menu[hidden]{display:none}
 .mbox{background:var(--card);border-radius:20px;padding:22px;width:min(100%,400px);box-shadow:0 14px 40px #000a}
 .mbox h4{margin:16px 0 6px;color:var(--ac);font-size:12px;letter-spacing:.6px;text-transform:uppercase}
@@ -54,6 +54,7 @@ h1{margin:0 0 4px;font-size:30px;letter-spacing:-.5px}h1 b{color:var(--x)}h1 i{c
 #tb{height:6px;background:#1c2332;border-radius:4px;margin:6px auto 0;width:min(88vw,380px);overflow:hidden}#tb i{display:block;height:100%;background:var(--ac);transform-origin:left}
 .cell.hint{background:#3a3412;box-shadow:inset 0 0 0 3px var(--ac)}
 .cf{position:fixed;top:-14px;width:9px;height:14px;z-index:20;pointer-events:none;animation:fall linear forwards}@keyframes fall{to{transform:translateY(108vh) rotate(720deg)}}
+@media (max-height:520px){.mbox{padding:14px 18px}.mbox h4{margin:10px 0 4px}.mbox .big{margin-top:12px}.sub{margin-bottom:6px}}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.cell svg *,#strike line{animation-duration:.01s;animation-delay:0s}}
 </style>

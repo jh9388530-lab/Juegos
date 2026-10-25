@@ -17,7 +17,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,get:function(){re
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17150f;--fg:#ece7da;--btn:#ece7da;--btnfg:#17150f}}
 :root[data-theme="dark"]{--bg:#17150f;--fg:#ece7da;--btn:#ece7da;--btnfg:#17150f}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-body{background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:12px;min-height:100vh;min-height:100dvh}
+body{box-sizing:border-box;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:12px;min-height:100vh;min-height:100dvh}
 #wrap{width:100%;max-width:1000px}
 canvas{width:100%;display:block;touch-action:none;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:10px 2px;font-size:14px}
@@ -30,6 +30,13 @@ button:disabled{opacity:.4;cursor:default}
 .chip i{background:#f6f3ea;color:#111;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:9px}
 #menu{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);padding:12px}
 #menu[hidden]{display:none}
+body.land{height:100vh;height:100dvh;overflow:hidden;padding:6px 8px;align-items:stretch}
+body.land #wrap{max-width:none;height:100%;display:flex;gap:10px;align-items:center}
+body.land canvas{flex:none}
+body.land #side{flex:1;min-width:150px;max-width:240px;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:2px}
+body.land .bar{margin:4px 0}body.land .pw{flex-wrap:wrap}body.land .pw input{min-width:100%;order:3}
+#hint{background:#b88a3c;color:#fff;border-radius:10px;padding:7px 10px;font-size:13px;margin:8px 2px 0;cursor:pointer}
+@media (max-width:700px),(max-height:560px){p.reglas{display:none}}
 .mbox{background:var(--bg);color:var(--fg);border-radius:16px;padding:20px;width:min(100%,420px);max-height:100%;overflow:auto;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5)}
 .mbox h2{margin:0 0 4px;font-size:26px}.mbox p{margin:4px 0 12px}
 .mrow{display:flex;gap:8px;margin:8px 0}.mrow>*{flex:1;min-width:0}
@@ -51,10 +58,13 @@ button:disabled{opacity:.4;cursor:default}
 </div></div>
 <div id="wrap">
 <canvas id="c"></canvas>
+<div id="side">
+<div id="hint" hidden>📱 Gira el celular para una mesa más grande (toca para cerrar)</div>
 <div class="bar"><span id="info"></span><span><button id="bm">☰ Menú</button> <button id="b1">Reiniciar</button> <button id="b3" title="Sonido">🔊</button></span></div>
 <div id="tray"></div>
 <div class="bar pw"><label for="pw">Potencia</label><input type="range" id="pw" min="5" max="100" value="55"><b id="pv">55%</b><button id="shoot">Tirar</button></div>
-<p><b>Reglas:</b> 2 jugadores por turnos. Con la mesa abierta, la primera bola que emboques sin falta define tus bolas (lisas 1-7 o rayadas 9-15). Si emboca una tuya sigues tirando; si no, pasa el turno. Falta (blanca embocada, no tocar nada o tocar primero una bola que no es tuya): el rival tiene bola en mano y puede arrastrar la blanca a donde quiera. Limpia tu grupo y emboca la 8 para ganar; embocarla antes de tiempo pierde.<br>Estilo 8 Ball Pool: arrastra sobre la mesa (o el palo) para girar el palo alrededor de la blanca; toca una bola para apuntar directo a ella. Arrastra la barra de potencia de la izquierda hacia abajo y suéltala para tirar. La bolita de la derecha es el efecto: arriba = sigue, abajo = retrocede, a los lados = efecto lateral en las bandas. También sirven el deslizador, Tirar, la barra espaciadora y las flechas ← →.</p>
+</div>
+<p class="reglas"><b>Reglas:</b> 2 jugadores por turnos. Con la mesa abierta, la primera bola que emboques sin falta define tus bolas (lisas 1-7 o rayadas 9-15). Si emboca una tuya sigues tirando; si no, pasa el turno. Falta (blanca embocada, no tocar nada o tocar primero una bola que no es tuya): el rival tiene bola en mano y puede arrastrar la blanca a donde quiera. Limpia tu grupo y emboca la 8 para ganar; embocarla antes de tiempo pierde.<br>Estilo 8 Ball Pool: arrastra sobre la mesa (o el palo) para girar el palo alrededor de la blanca; toca una bola para apuntar directo a ella. Arrastra la barra de potencia de la izquierda hacia abajo y suéltala para tirar. La bolita de la derecha es el efecto: arriba = sigue, abajo = retrocede, a los lados = efecto lateral en las bandas. También sirven el deslizador, Tirar, la barra espaciadora y las flechas ← →.</p>
 </div>
 <script>
 const W=1000,H=560,M=58,R=15,PR=30,L=M,T=M,RT=W-M,B=H-M;
@@ -72,8 +82,15 @@ let turn=0,grp=[null,null],hand=0,ts={on:0},over=null,nt='',ntT=0;
 const gOf=n=>n===8?'e':n<8?'s':'r',left=g=>balls.filter(b=>b.n&&gOf(b.n)===g&&b.sink<0).length;
 function note(s){nt=s;ntT=2.8;}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let hintOff=false;document.addEventListener("click",e=>{if(e.target.id==="hint"){hintOff=true;e.target.hidden=true;resize();}});
 function resize(){
-  const w=Math.min(document.getElementById('wrap').clientWidth,1000),d=Math.min(window.devicePixelRatio||1,2);
+  const wr=document.getElementById('wrap'),sd=document.getElementById('side'),land=innerWidth>innerHeight&&innerHeight<=560;
+  document.body.classList.toggle('land',land);
+  const hn=document.getElementById('hint');hn.hidden=hintOff||land||!(innerHeight>innerWidth&&innerWidth<600);
+  let w=Math.min(wr.clientWidth,1000);
+  if(land)w=Math.min(wr.clientWidth-sd.offsetWidth-10,(innerHeight-14)*W/H);
+  else w=Math.min(w,Math.max(260,(innerHeight-sd.offsetHeight-34)*W/H));
+  w=Math.max(200,Math.floor(w));const d=Math.min(window.devicePixelRatio||1,2);
   if(w===rw&&d===rd)return;rw=w;rd=d;
   cv.style.width=w+'px';cv.width=Math.round(w*d);cv.height=Math.round(w*H/W*d);
   tc.width=cv.width;tc.height=cv.height;buildTable();buildStick();
