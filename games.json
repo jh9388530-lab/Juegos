@@ -1,20 +1,23 @@
 {
- "v": 1,
+ "v": 1792943748749,
  "meta": [
   {
    "id": "gusano",
-   "t": "Gusano Hambriento",
+   "t": "Gusano Hambrie",
    "cat": "Acción",
    "tag": "Come, crece y sobrevive",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "billar",
    "t": "Billar 8 Ball",
    "cat": "Deportes",
    "tag": "2 jugadores por turnos",
-   "big": 1
+   "big": 1,
+   "hide": 0,
+   "nuevo": 0
   },
   {
    "id": "zona",
@@ -22,7 +25,8 @@
    "cat": "Acción",
    "tag": "Modo oleadas",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "comando",
@@ -30,7 +34,8 @@
    "cat": "Acción",
    "tag": "Misiones · móvil y PC",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "arco",
@@ -38,7 +43,8 @@
    "cat": "Deportes",
    "tag": "Puntería",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "duelo",
@@ -46,7 +52,8 @@
    "cat": "Acción",
    "tag": "Pelea 1 o 2 jugadores",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   },
   {
    "id": "triki",
@@ -54,7 +61,8 @@
    "cat": "Clásicos",
    "tag": "1 o 2 jugadores",
    "big": 1,
-   "nuevo": 1
+   "nuevo": 1,
+   "hide": 0
   }
  ]
 }
