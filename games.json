@@ -1,5 +1,5 @@
 {
- "v": 1793055125392,
+ "v": 1793055292613,
  "meta": [
   {
    "id": "gusano",
@@ -80,14 +80,15 @@
   {
    "id": "jmvpuq4f5",
    "t": "Guerreros del cielo",
-   "cat": "Otros",
-   "tag": "Juego nuevo",
+   "cat": "Accion",
+   "tag": "Pele y sobrevive",
    "big": 1,
    "nuevo": 1,
    "emoji": "🎮",
    "r": 1793055124193,
    "cov": 1,
-   "cr": 1793055124193
+   "cr": 1793055124193,
+   "hide": 0
   }
  ]
 }
